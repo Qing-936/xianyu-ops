@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>io.github.qing936.xianyuops</groupId>
+        <artifactId>xianyuops</artifactId>
+        <version>${revision}</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>xianyuops-module-xianyu</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>
+        闲鱼运营模块，承载账号、商品、订单、卡券、虚拟货源、消息、自助下单与 Agent 接入。
+        数据库表名以 app_xianyu_ / app_source_ 开头，Controller URL 以 /admin-api/xianyu/、/app/xianyu/、/agent-api/ 开头。
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.qing936.xianyuops</groupId>
+            <artifactId>xianyuops-module-infra</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.qing936.xianyuops</groupId>
+            <artifactId>xianyuops-module-system</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 业务组件 -->
+        <dependency>
+            <groupId>io.github.qing936.xianyuops</groupId>
+            <artifactId>xianyuops-spring-boot-starter-biz-tenant</artifactId>
+        </dependency>
+
+        <!-- Web 相关 -->
+        <dependency>
+            <groupId>io.github.qing936.xianyuops</groupId>
+            <artifactId>xianyuops-spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- DB 相关 -->
+        <dependency>
+            <groupId>io.github.qing936.xianyuops</groupId>
+            <artifactId>xianyuops-spring-boot-starter-mybatis</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.qing936.xianyuops</groupId>
+            <artifactId>xianyuops-spring-boot-starter-redis</artifactId>
+        </dependency>
+
+        <!-- 消息队列相关 -->
+        <dependency>
+            <groupId>io.github.qing936.xianyuops</groupId>
+            <artifactId>xianyuops-spring-boot-starter-mq</artifactId>
+        </dependency>
+
+        <!-- Test 测试相关 -->
+        <dependency>
+            <groupId>io.github.qing936.xianyuops</groupId>
+            <artifactId>xianyuops-spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 工具类相关 -->
+        <dependency>
+            <groupId>io.github.qing936.xianyuops</groupId>
+            <artifactId>xianyuops-spring-boot-starter-excel</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sejda.imageio</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.1.6</version>
+        </dependency>
+    </dependencies>
+
+</project>

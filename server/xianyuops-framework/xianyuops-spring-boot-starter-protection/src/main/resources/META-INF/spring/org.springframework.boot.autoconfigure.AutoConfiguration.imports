@@ -1,0 +1,4 @@
+io.github.qing936.xianyuops.framework.idempotent.config.XianyuOpsIdempotentConfiguration
+io.github.qing936.xianyuops.framework.lock4j.config.XianyuOpsLock4jConfiguration
+io.github.qing936.xianyuops.framework.ratelimiter.config.XianyuOpsRateLimiterConfiguration
+io.github.qing936.xianyuops.framework.signature.config.XianyuOpsApiSignatureAutoConfiguration

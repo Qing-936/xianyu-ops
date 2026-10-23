@@ -1,0 +1,20 @@
+# 运行产物 / 日志（含截图、OCR 缓存 .ocr.json）
+logs/
+
+# Python 字节码
+__pycache__/
+*.pyc
+
+# 机器指纹（03 §3.2：首次心跳注册时生成 UUID4 持久化，删文件会注册出新 Agent；
+# 每台机器唯一，禁止入库，否则多机部署共用同一 machineCode）
+.machine_code
+
+# 本地环境变量 / 密钥类文件
+*.local.yaml
+
+# 专属 Token（M5 一机一 Token：首次心跳下发后落盘，等价于该机器的登录凭据，禁止入库）
+.agent_token
+
+# webim 通道 Cookie 主源（闲管家调试口 9401 导出的活体闲鱼会话 Cookie，2~3 天有效）
+# 泄露 = 他人可直接冒充该闲鱼号登录，禁止入库
+accounts.json

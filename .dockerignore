@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/target
+**/logs
+**/__pycache__
+**/.venv
+.git
+.idea
+.DS_Store
+reference-projects
+需求

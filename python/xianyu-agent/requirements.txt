@@ -1,0 +1,11 @@
+requests
+pyyaml
+pywinauto
+pyautogui
+mss
+pywin32
+rapidocr-onnxruntime
+psutil
+pillow
+numpy                         # win.grab_* 内存截图（rapidocr 也依赖，此处显式声明直接 import）
+opencv-python-headless        # 帧 diff 动作验证（07 号文档 T1.3；未安装时 diff fail-open 降级）

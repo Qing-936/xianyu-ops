@@ -1,0 +1,131 @@
+server:
+  port: ${SERVER_PORT:48180}
+
+--- #################### 数据库相关配置 ####################
+
+spring:
+  datasource:
+    druid:
+      web-stat-filter:
+        enabled: false
+      stat-view-servlet:
+        enabled: false
+      filter:
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 100
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+    dynamic:
+      druid:
+        initial-size: 1
+        min-idle: 1
+        max-active: 20
+        max-wait: 60000
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 600000
+        max-evictable-idle-time-millis: 1800000
+        validation-query: SELECT 1
+        test-while-idle: true
+        test-on-borrow: true
+        test-on-return: false
+        pool-prepared-statements: true
+        max-pool-prepared-statement-per-connection-size: 20
+      primary: master
+      datasource:
+        master:
+          url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:xianyuops}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+          username: ${DB_USER:xianyuops}
+          password: ${DB_PASSWORD:xianyuops}
+
+  # Redis 配置
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DB:0}
+      password: ${REDIS_PASSWORD:}
+
+--- #################### 定时任务相关配置 ####################
+
+spring:
+  quartz:
+    auto-startup: ${QUARTZ_AUTO_STARTUP:true}
+    scheduler-name: xianyuopsScheduler
+    job-store-type: jdbc
+    wait-for-jobs-to-complete-on-shutdown: true
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: xianyuopsScheduler
+            instanceId: AUTO
+          jobStore:
+            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            isClustered: true
+            clusterCheckinInterval: 15000
+            misfireThreshold: 60000
+          threadPool:
+            threadCount: 10
+            threadPriority: 5
+            class: org.quartz.simpl.SimpleThreadPool
+    jdbc:
+      initialize-schema: NEVER
+
+--- #################### 服务保障相关配置 ####################
+
+lock4j:
+  acquire-timeout: 3000
+  expire: 30000
+
+--- #################### 监控相关配置 ####################
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info
+
+--- #################### 日志配置 ####################
+
+logging:
+  file:
+    name: ${user.home}/logs/${spring.application.name}.log
+  level:
+    io.github.qing936.xianyuops.module.system.dal.mysql: debug
+    io.github.qing936.xianyuops.module.infra.dal.mysql: debug
+    io.github.qing936.xianyuops.module.xianyu.dal.mysql: debug
+    io.github.qing936.xianyuops.module.xianyu.service.source.clean: INFO
+    org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR
+
+debug: false
+
+--- #################### 本地业务配置 ####################
+
+xianyuops:
+  captcha:
+    enable: false
+  security:
+    # 本地开发默认关闭登录 mock；需要免登录联调时再临时改为 true
+    mock-enable: ${SECURITY_MOCK_ENABLE:false}
+    permission-check-enable: ${PERMISSION_CHECK_ENABLE:false}
+  access-log:
+    enable: false
+
+  xianyu:
+    agent:
+      tenant-id: ${XIANYU_AGENT_TENANT_ID:1}
+      enroll-code-ttl-minutes: 60
+  source:
+    base-url: ${SOURCE_PYTHON_BASE_URL:http://127.0.0.1:8002}
+    timeout-seconds: 30
+    clean:
+      enabled: ${SOURCE_CLEAN_ENABLED:true}
+      timeout-seconds: ${SOURCE_CLEAN_TIMEOUT_SECONDS:300}
+
+justauth:
+  enabled: false

@@ -1,0 +1,43 @@
+# Java / Maven
+target/
+*.class
+.flattened-pom.xml
+*.iml
+.idea/
+*.iws
+*.ipr
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.turbo/
+coverage/
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+logs/
+.env
+.env.*
+!.env.example
+cookie.json
+env_snapshot.json
+.agent_token
+.machine_code
+accounts.json
+*.local.yaml
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.log
+
+# Local runtime
+temp/

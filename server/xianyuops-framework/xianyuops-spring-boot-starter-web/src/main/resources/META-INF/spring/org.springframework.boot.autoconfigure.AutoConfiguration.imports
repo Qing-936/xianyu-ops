@@ -1,0 +1,7 @@
+io.github.qing936.xianyuops.framework.apilog.config.XianyuOpsApiLogAutoConfiguration
+io.github.qing936.xianyuops.framework.jackson.config.XianyuOpsJacksonAutoConfiguration
+io.github.qing936.xianyuops.framework.swagger.config.XianyuOpsSwaggerAutoConfiguration
+io.github.qing936.xianyuops.framework.web.config.XianyuOpsWebAutoConfiguration
+io.github.qing936.xianyuops.framework.xss.config.XianyuOpsXssAutoConfiguration
+io.github.qing936.xianyuops.framework.banner.config.XianyuOpsBannerAutoConfiguration
+io.github.qing936.xianyuops.framework.encrypt.config.XianyuOpsApiEncryptAutoConfiguration

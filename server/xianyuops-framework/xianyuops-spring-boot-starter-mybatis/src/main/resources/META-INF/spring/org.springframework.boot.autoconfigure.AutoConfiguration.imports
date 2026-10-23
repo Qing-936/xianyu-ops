@@ -1,0 +1,3 @@
+io.github.qing936.xianyuops.framework.datasource.config.XianyuOpsDataSourceAutoConfiguration
+io.github.qing936.xianyuops.framework.mybatis.config.XianyuOpsMybatisAutoConfiguration
+io.github.qing936.xianyuops.framework.translate.config.XianyuOpsTranslateAutoConfiguration

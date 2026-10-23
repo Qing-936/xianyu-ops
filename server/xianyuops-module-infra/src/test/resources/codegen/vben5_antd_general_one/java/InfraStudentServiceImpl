@@ -1,0 +1,85 @@
+package io.github.qing936.xianyuops.module.infra.service.demo;
+
+import cn.hutool.core.collection.CollUtil;
+import org.springframework.stereotype.Service;
+import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import io.github.qing936.xianyuops.module.infra.controller.admin.demo.vo.*;
+import io.github.qing936.xianyuops.module.infra.dal.dataobject.demo.InfraStudentDO;
+import io.github.qing936.xianyuops.framework.common.pojo.PageResult;
+import io.github.qing936.xianyuops.framework.common.pojo.PageParam;
+import io.github.qing936.xianyuops.framework.common.util.object.BeanUtils;
+
+import io.github.qing936.xianyuops.module.infra.dal.mysql.demo.InfraStudentMapper;
+
+import static io.github.qing936.xianyuops.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static io.github.qing936.xianyuops.framework.common.util.collection.CollectionUtils.convertList;
+import static io.github.qing936.xianyuops.framework.common.util.collection.CollectionUtils.diffList;
+import static io.github.qing936.xianyuops.module.infra.enums.ErrorCodeConstants.*;
+
+/**
+ * 学生 Service 实现类
+ *
+ * @author XianyuOps系统
+ */
+@Service
+@Validated
+public class InfraStudentServiceImpl implements InfraStudentService {
+
+    @Resource
+    private InfraStudentMapper studentMapper;
+
+    @Override
+    public Long createStudent(InfraStudentSaveReqVO createReqVO) {
+        // 插入
+        InfraStudentDO student = BeanUtils.toBean(createReqVO, InfraStudentDO.class);
+        studentMapper.insert(student);
+
+        // 返回
+        return student.getId();
+    }
+
+    @Override
+    public void updateStudent(InfraStudentSaveReqVO updateReqVO) {
+        // 校验存在
+        validateStudentExists(updateReqVO.getId());
+        // 更新
+        InfraStudentDO updateObj = BeanUtils.toBean(updateReqVO, InfraStudentDO.class);
+        studentMapper.updateById(updateObj);
+    }
+
+    @Override
+    public void deleteStudent(Long id) {
+        // 校验存在
+        validateStudentExists(id);
+        // 删除
+        studentMapper.deleteById(id);
+    }
+
+    @Override
+        public void deleteStudentListByIds(List<Long> ids) {
+        // 删除
+        studentMapper.deleteByIds(ids);
+        }
+
+
+    private void validateStudentExists(Long id) {
+        if (studentMapper.selectById(id) == null) {
+            throw exception(STUDENT_NOT_EXISTS);
+        }
+    }
+
+    @Override
+    public InfraStudentDO getStudent(Long id) {
+        return studentMapper.selectById(id);
+    }
+
+    @Override
+    public PageResult<InfraStudentDO> getStudentPage(InfraStudentPageReqVO pageReqVO) {
+        return studentMapper.selectPage(pageReqVO);
+    }
+
+}

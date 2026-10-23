@@ -1,0 +1,111 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: xianyuops-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+      MYSQL_DATABASE: ${DB_NAME:-xianyuops}
+      MYSQL_USER: ${DB_USER:-xianyuops}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-xianyuops}
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+08:00
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./sql/mysql/base.sql:/docker-entrypoint-initdb.d/01-base.sql:ro
+      - ./sql/mysql/quartz.sql:/docker-entrypoint-initdb.d/02-quartz.sql:ro
+      - ./sql/mysql/system/system-menu-seed.sql:/docker-entrypoint-initdb.d/03-menu.sql:ro
+      - ./sql/mysql/app/app-xianyu.sql:/docker-entrypoint-initdb.d/04-app-xianyu.sql:ro
+      - ./sql/mysql/app/app-source.sql:/docker-entrypoint-initdb.d/05-app-source.sql:ro
+      - ./sql/mysql/app/app-config.sql:/docker-entrypoint-initdb.d/06-app-config.sql:ro
+      - ./sql/mysql/system/system-tenant-menu-seed.sql:/docker-entrypoint-initdb.d/07-tenant-menu.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    container_name: xianyuops-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  source:
+    build:
+      context: .
+      dockerfile: docker/source.Dockerfile
+    container_name: xianyuops-source
+    restart: unless-stopped
+    environment:
+      SOURCE_DB_HOST: mysql
+      SOURCE_DB_PORT: 3306
+      SOURCE_DB_NAME: ${DB_NAME:-xianyuops}
+      SOURCE_DB_USER: ${DB_USER:-xianyuops}
+      SOURCE_DB_PASSWORD: ${DB_PASSWORD:-xianyuops}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
+    ports:
+      - "${SOURCE_PORT:-8002}:8002"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: xianyuops-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SERVER_PORT: 48180
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-xianyuops}
+      DB_USER: ${DB_USER:-xianyuops}
+      DB_PASSWORD: ${DB_PASSWORD:-xianyuops}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SOURCE_PYTHON_BASE_URL: http://source:8002
+      QUARTZ_AUTO_STARTUP: "true"
+      SECURITY_MOCK_ENABLE: "false"
+      PERMISSION_CHECK_ENABLE: "false"
+    ports:
+      - "${BACKEND_PORT:-48180}:48180"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      source:
+        condition: service_started
+
+  admin:
+    build:
+      context: .
+      dockerfile: docker/admin.Dockerfile
+    container_name: xianyuops-admin
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_PORT:-5666}:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:
+  redis-data:

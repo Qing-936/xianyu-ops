@@ -1,0 +1,110 @@
+server:
+  base_url: http://127.0.0.1:48180      # 本地 Java（dev）
+  enroll_code: ""                       # 一次性注册码：管理端「闲鱼 → Agent 管理 → 注册码」生成，短时效 + 单次消费，仅首次注册心跳用
+# 专属 Token（M5 一机一 Token）：首次心跳用注册码自动换取并存入 .agent_token，此后优先使用，无需人工填写；
+# 已有 .agent_token 的机器留空 enroll_code 即可正常启动。
+# 本地覆盖：注册码等敏感值放 config.local.yaml（已被 .gitignore 排除，不入库），
+# 启动时自动 deep-merge 覆盖本文件，如：
+#   server:
+#     enroll_code: "xyag-xxxxxxxx"
+#   ui:
+#     account_tab_region: [0, 0, 1920, 60]
+http:
+  timeout_sec: 40                        # 显式超时 > 长轮询 25s + 余量
+poll:
+  interval_sec: 5                        # 仅 UI 扫描节奏（长轮询已拆到独立线程，任务到达会立即唤醒主循环）
+  long_poll_timeout_sec: 25              # 长轮询挂起时长（与 Java 配置一致）
+heartbeat:
+  interval_sec: 15                       # 心跳周期初值；运行后以 Java 心跳响应 pollIntervalSec 为准
+agent:
+  name: "本机开发Agent"                   # 仅本地展示用（Java 侧默认取 hostName）
+  version: "0.1.0"
+ocr:
+  lang: ch                               # 仅记录用：rapidocr_onnxruntime 只内置中文模型（Global 段无 lang 键），换语言须传 config_path
+  min_confidence: 0.85                   # 低于阈值重拍
+  retry_shot: 1                          # 重拍次数
+  use_cls: false                         # 文字角度分类器：实测 4 张标定截图上开/关的识别结果逐条一致（文本相同、框偏差 0px），关掉省约 0.15s/张
+  intra_op_num_threads: 0                # onnxruntime 线程数，0=自适应 min(4, 核数)；勿用包默认 -1（实测 20 核机 8.3s→1.1s）
+channel:
+  impl: ui_ocr                           # 通道实现：ui_ocr（UIA+OCR 读屏，当前生产）/ webim（浏览器 DOM，阶段 1 M3 灰度切）
+  webim:                                 # webim 通道配置（impl=webim 时生效；M3 切机后在 config.local.yaml 覆盖机器特定值）
+    port: 9333                           # 浏览器调试端口（⚠️ 浏览器须长驻复用，禁止每轮启停——短时高频开关曾触发 x5sec punish）
+    headless: true                       # headless=new（实测不暴露 navigator.webdriver 指纹）
+    profile_dir: ""                      # 浏览器 profile 目录；空 = ~/.xianyu-webim/profile
+    browser_path: ""                     # Edge/Chrome 可执行文件；空 = 自动探测
+    accounts_file: ""                    # accounts.json 缓存（Cookie 主源，调试口导出的产物）；空 = 仅调试口导出降级
+    export_port: 9401                    # 闲管家调试口（accounts_file 缺失时降级导出；⚠️ 用后须正常重启闲管家）
+    ready_timeout_sec: 150               # 页面就绪等待上限（vm101 冷启动实测渲染 >60s；2026-09-22 离线根因：60s 超时重载打断渲染死循环）
+    open_retries: 3                      # 页面打开重试次数（2026-09-22 起重试不无条件重载：仅 URL 偏离才 navigate）
+    collect_steps: 30                    # 会话列表滚动步数（单次 collect_conversations）
+    punish_cooldown_sec: 600             # 「非法访问」风控提示的账号级冷却秒数（P1-3：punish 自愈型，不映射 BLOCKED，冷却后自动恢复）
+    list_recover_enable: true            # 会话列表停滞自愈（L1 软重载）总开关；关掉则仅告警+进 IDLE 等人工
+    list_recover_cooldown_sec: 300       # L1 软重载最小间隔（防风控：频繁 navigate 会触发 punish/非法访问）
+    list_recover_timeout_sec: 60         # 单次软重载等待渲染上限（须 ≤ ready_timeout_sec）
+outbound:
+  # 15 号文档：媒体外发（默认关闭；M4 验收后由 config.local.yaml 覆盖 enabled: true）
+  enabled: false
+  image_max_bytes: 3145727      # 3MB-1B：客户端 beforeUpload 严格小于 3,145,728
+  allowed_formats: [jpeg, png, gif, bmp]   # 客户端 accept 无 WEBP
+  download_timeout_sec: 20
+  verify_timeout_sec: 25
+  account_min_interval_sec: 3   # 同账号媒体任务最小间隔
+  temp_dir: logs/outbox
+  cleanup_keep_failed_hours: 24
+read:
+  # —— 07 号文档 R1 读取可靠性（默认开启；单点问题可单独关开关回退） ——
+  enable_time_change: true               # T1.1 会话行时间文本变化触发读取
+  enable_force_open: true                # T1.2 活跃会话周期兜底强制打开
+  enable_blacklist: true                 # T1.4 打开失败熔断黑名单
+  enable_open_diff: true                 # T1.3 打开会话前后帧 diff 验证
+  time_tol_sec: 300                      # 时间变化检测容差（相对时间解析粒度误差，秒）
+  active_window_min: 120                 # 兜底读取「活跃会话」窗口（分钟）
+  force_every: 10                        # 每 N 轮强制打开 1 个活跃会话兜底对账（5s/轮 → 约 50s）
+  max_list_rows: 30                      # 列表行数超该值关闭兜底（防大列表轮转开销）
+  open_fail_max: 3                       # 打开会话连续失败 N 次熔断
+  blacklist_ttl_min: 30                  # 熔断黑名单基础 TTL（分钟；重复入狱翻倍，上限 240）
+vision:
+  # —— 帧 diff 参数（07 号文档 T1.3；桌面窗口截图无需相机对齐那套） ——
+  noise_threshold: 25                    # 像素灰度差阈值（低于视为噪声）
+  diff_ratio: 0.003                      # 分布式变化触发比例（>0.3% 像素变化）
+  local_blob_min_px: 60                  # 局部连通域最小面积（角标/单行文本级变化）
+ui:
+  proc_name: "闲管家"                    # 进程名匹配关键字
+  window_title: ""                       # 标题匹配（空=取最长标题主窗口）
+  # ⚠️ 以下区域均为「窗口相对坐标」（窗口矩形左上为原点），实测窗口 2160×1284，
+  #    窗口尺寸变化后必须重新校准（M3 实测按 1280×800 标定导致区域全错位）。
+  account_tab_region: [0, 0, 700, 90]   # 账号切换栏区域（含昵称/在线标签/加号）
+  account_tab_ignore: ["在线", "离线", "+"]   # tab 区噪声文本过滤（状态标签/添加按钮，避免误当账号）
+  conversation_list_region: [0, 140, 600, 1284]  # 会话列表区域（左侧导航右、聊天区左）
+  conversation_nav_rail_right: 95             # 列表区左侧导航栏右边界（x1 ≤ 该值视为导航栏）
+  conversation_line_y_tol: 12                 # 视觉行内 y 容差（同一行多个文本）
+  conversation_block_gap_px: 60               # 会话块行间距阈值（相邻行 y 超此值 → 新会话块）
+  conversation_nick_x_min: 180                # 会话昵称 x0 下界（实测昵称对齐 x0≈188-191）
+  conversation_nick_x_max: 230                # 会话昵称 x0 上界
+  conversation_ignore_keywords: ["搜索", "过期", "全部", "待下单", "待付款", "待发货", "有人@我", "兑好礼", "站点Logo", "闲小蜜"]  # 非会话行（搜索框/警告条/订单筛选/互动通知/站点Logo图片alt/闲小蜜=闲鱼官方助手入口）过滤
+  chat_area_region: [600, 160, 1445, 980]      # 聊天消息区（上沿避开顶部标题、下沿避开输入区）
+  chat_input_region: [600, 980, 1445, 1284]     # 输入框区域（点击聚焦 + 粘贴验证）
+  chat_header_region: [600, 90, 1445, 190]      # 会话页顶部标题栏/买家昵称区（发送前身份校验）
+  chat_ignore_keywords: ["¥", "￥", "含运费", "卡号", "运费", "站点Logo"]  # 聊天区非消息行（商品卡片/站点Logo图片alt）过滤
+  input_placeholder: "请输入"             # 输入框占位提示词（OCR 定位用）
+  send_button_text: "发送"               # 发送按钮文字（OCR 定位用）
+  actions_delay_ms: 300                  # 操作间隔（同时也是条件等待的上限基数）
+  debug_shots: false                     # true=每步截图都落盘 logs/shots（排查用）；false=仅失败/验证落盘
+  login_page_keywords: ["扫码", "登录", "验证"]  # 登录页特征词（BLOCKED 判定）
+control:
+  # —— 07 号文档 R5 人工接管（VM 端悬浮控制条） ——
+  enable: true                # 悬浮控制条开关（tkinter 不可用时自动失效，不阻断 Agent）
+  position: []                # [x, y] 屏幕坐标；空 = 右下角（实测不与任何 OCR region 重叠，零截图污染）
+  auto_resume_min: 30         # 人工暂停超时自动恢复（分钟；0 = 不自动恢复）
+guard:
+  screen_locked_check_sec: 10
+  proc_alive_check_sec: 10
+  heartbeat_health_sec: 10
+  main_loop_health_sec: 30               # 主循环健康巡检「频率」
+  main_loop_stale_sec: 150               # 主循环「无进度」上限：P1-4（12 号文档）收紧 300→150——
+                                          # P0 修复后单轮实测 18~87s、步间回调触点最大窗口 <60s；
+                                          # 300 是为病态扫描轮的临时值，恢复卡死发现灵敏度
+  shots_retention_days: 7
+  audit_retention_days: 30
+audit:
+  enable: true

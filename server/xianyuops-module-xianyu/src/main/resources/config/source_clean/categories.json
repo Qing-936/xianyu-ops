@@ -1,0 +1,99 @@
+{
+  "_description": "货源清洗 Skill 配置库 - 标题/文案/头图生成规则",
+  "_version": "3.1.0",
+  "_last_updated": "2026-09-18",
+  "_usage_notes": [
+    "每个 Skill 保持固定字段结构：编码(skill_code)、类型(skill_type)、名称(skill_name)、版本(version)、提示词模板(prompt_template)、Dify配置(dify_config)",
+    "标题 Skill 共8种生成策略，文案 Skill 共7种商品分类，头图 Skill 共6种视觉风格",
+    "所有生成内容只能使用输入中明确提供的商品事实；价格、数量、成色、来源故事、发货和售后承诺不得自行编造",
+    "户外公司团购抽奖背景、儿童玩具教育机构批采背景，仅在原始商品资料明确包含时使用，否则省略",
+    "预置 Skill 编码自3.0.0起维护，单条版本随提示词或元数据更新递增；旧 Skill 编码不兼容"
+  ],
+  "category_code_rule": "虚拟商品直接使用三个一级分类编码；实物类必须从 categories 中选择一个 physical. 开头的具体路由编码，不得返回中文名称、physical 或自造分类",
+  "categories": [
+    {
+      "category_code": "electronic_material",
+      "category_name": "电子资料类",
+      "group_name": "虚拟商品",
+      "description": "动画合集、学习资料、软件工具、模板素材和数字文件",
+      "tags": [
+        "虚拟",
+        "资料",
+        "数字文件"
+      ],
+      "sort_order": 10
+    },
+    {
+      "category_code": "service_agency",
+      "category_name": "服务代办类",
+      "group_name": "虚拟商品",
+      "description": "签证、翻译、咨询和生活服务",
+      "tags": [
+        "虚拟",
+        "服务",
+        "代办"
+      ],
+      "sort_order": 20
+    },
+    {
+      "category_code": "custom_development",
+      "category_name": "定制开发类",
+      "group_name": "虚拟商品",
+      "description": "小程序、H5、APP、网站和设计定制",
+      "tags": [
+        "虚拟",
+        "开发",
+        "定制"
+      ],
+      "sort_order": 30
+    },
+    {
+      "category_code": "physical.outdoor",
+      "category_name": "户外产品",
+      "group_name": "实物商品",
+      "description": "露营装备、户外桌椅、帐篷和运动器材",
+      "tags": [
+        "实物",
+        "户外",
+        "露营"
+      ],
+      "sort_order": 40
+    },
+    {
+      "category_code": "physical.children_toy",
+      "category_name": "儿童玩具",
+      "group_name": "实物商品",
+      "description": "积木、拼图、益智桌游、早教和遥控玩具",
+      "tags": [
+        "实物",
+        "儿童",
+        "玩具"
+      ],
+      "sort_order": 50
+    },
+    {
+      "category_code": "physical.storage",
+      "category_name": "收纳产品",
+      "group_name": "实物商品",
+      "description": "收纳箱、置物架、分隔件和衣柜收纳用品",
+      "tags": [
+        "实物",
+        "收纳",
+        "家居"
+      ],
+      "sort_order": 60
+    },
+    {
+      "category_code": "physical.3c_accessory",
+      "category_name": "3C 配件",
+      "group_name": "实物商品",
+      "description": "手机壳、数据线、充电器、支架和电脑配件",
+      "tags": [
+        "实物",
+        "3C",
+        "配件"
+      ],
+      "sort_order": 70
+    }
+  ]
+}

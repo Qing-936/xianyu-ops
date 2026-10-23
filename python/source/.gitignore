@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Logs
+logs/
+*.log
+
+# Sensitive data
+cookie.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test debug scripts
+test/quick_test.py
+test/verify_fields.py
+test/verify_latest.py
+test/debug_raw_fields.py
+
+# 虚拟环境与本地环境变量
+.venv/
+.env
+
+# 真浏览器环境快照（gen_tfstk.js 可选输入，含浏览器指纹，禁止入库）
+env_snapshot.json

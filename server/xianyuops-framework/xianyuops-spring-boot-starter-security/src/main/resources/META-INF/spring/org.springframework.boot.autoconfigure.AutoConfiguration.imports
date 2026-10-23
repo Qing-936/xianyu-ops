@@ -1,0 +1,3 @@
+io.github.qing936.xianyuops.framework.security.config.XianyuOpsSecurityAutoConfiguration
+io.github.qing936.xianyuops.framework.security.config.XianyuOpsWebSecurityConfigurerAdapter
+io.github.qing936.xianyuops.framework.operatelog.config.XianyuOpsOperateLogConfiguration

@@ -1,0 +1,3 @@
+io.github.qing936.xianyuops.framework.mq.redis.config.XianyuOpsRedisMQProducerAutoConfiguration
+io.github.qing936.xianyuops.framework.mq.redis.config.XianyuOpsRedisMQConsumerAutoConfiguration
+io.github.qing936.xianyuops.framework.mq.rabbitmq.config.XianyuOpsRabbitMQAutoConfiguration

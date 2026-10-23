@@ -1,0 +1,78 @@
+/* ========== Design Tokens ========== */
+:root {
+  /* Brand */
+  --color-primary: #5b5bd6;
+  --color-primary-hover: #4a4ac4;
+  --color-primary-active: #3f3fb0;
+  --color-primary-bg: #f0f0ff;
+
+  /* Semantic */
+  --color-error: #e5484d;
+  --color-success: #30a46c;
+  --color-warning: #f5a623;
+  --color-info: #0091ff;
+
+  /* Surfaces */
+  --color-bg: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fafafa;
+
+  /* Borders */
+  --color-border: #e8e8ed;
+  --color-border-light: #f0f0f3;
+
+  /* Ink ramp */
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #5c5c6f;
+  --color-text-muted: #8b8b9e;
+  --color-text-disabled: #c2c2cc;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+
+  /* Radius */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+}
+
+/* ========== Global Reset ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+/* ========== NProgress ========== */
+#nprogress .bar {
+  background: var(--color-primary) !important;
+}
+
+/* ========== Responsive Utilities ========== */
+
+/* Tablet: 768-1023px */
+@media (max-width: 1023px) {
+  .hide-tablet {
+    display: none !important;
+  }
+}
+
+/* Mobile: <768px */
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
